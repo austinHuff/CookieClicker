@@ -1,7 +1,7 @@
 # CookieClicker
 pygame basic cookie clicker
 
-###TO-DO:
+### TO-DO:
 - [] boost 1
 - [] boost 2
 - [] boost 3
