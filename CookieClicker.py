@@ -5,18 +5,17 @@ import time
 pygame.init()
 
 # get highscores & save into dict
+highscores = dict()
 try:
-    highscores = dict()
+    
     with open('highscores.txt','r') as t:
         s = t.readlines()
     for i in s:
         L = i.split(' ')
         if L != ["\n"] and L != [""]:
             highscores[str(L[0])] = [int(L[1]),int(L[2]),int(str(L[3])[0:-1])]
-except FileNotFoundError:
-    # file not found, create blank highscores.txt file
-    with open('highscores.txt','w') as t:
-        t.write("")
+except:
+    highscores['null'] = [-1,-1,-1]
 # constants and global vars
 display_width = 500
 display_height = 500
@@ -25,6 +24,9 @@ C_HEIGHT = 200
 clickrate = 1
 secondrate = 0
 eaten = 0
+boost1_cost = 10
+boost2_cost = 100
+boost3_cost = 1000
 cookieImg = pygame.image.load(r'C:\Users\Austin\Desktop\paint_images\cookieT.png')
 
 # colors
@@ -48,17 +50,74 @@ gameDisplay = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption('Cookie Clicker')
 clock = pygame.time.Clock()
 
-def boost_1():
-    print('boost1')
+def insufficient_funds():
+    # displays insufficient funds message
+    top = 100
+    inc = 25
+    bool_Help = True
+    while bool_Help:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quitgame()
+                
+        gameDisplay.fill(white)
+        TextSurf, TextRect = text_objects("Not enough cookies!", mediumText)
+        TextRect.center = ((display_width/2),(75))
+        gameDisplay.blit(TextSurf, TextRect)
 
-def boost_2():
-    print('boost2')
+        TextSurf, TextRect = text_objects("Keep clicking!", mediumText)
+        TextRect.center = ((display_width/2),(140))
+        gameDisplay.blit(TextSurf, TextRect)
 
-def boost_3():
-    print('boost3')
+        TextSurf, TextRect = text_objects("Costs are as follows: ", mediumText)
+        TextRect.center = ((display_width/2),(185))
+        gameDisplay.blit(TextSurf, TextRect)
+
+        TextSurf, TextRect = text_objects("Boost 1: " + str(boost1_cost), mediumText)
+        TextRect.center = ((display_width/2),(220))
+        gameDisplay.blit(TextSurf, TextRect)
+
+        TextSurf, TextRect = text_objects("Boost 2: " + str(boost2_cost), mediumText)
+        TextRect.center = ((display_width/2),(255))
+        gameDisplay.blit(TextSurf, TextRect)
+
+        TextSurf, TextRect = text_objects("Boost 3: " + str(boost3_cost), mediumText)
+        TextRect.center = ((display_width/2),(290))
+        gameDisplay.blit(TextSurf, TextRect)
+        
+        button("Continue",200,400,100,50,blue,bright_blue,game_loop)
+        pygame.display.update()
+        #time.sleep(3)
+        #game_loop()
+        clock.tick(60)
+
+def boost1():
+    global clickrate
+    global eaten
+    global boost1_cost
+
+    if eaten < boost1_cost:
+        # unable to spend cookies
+        pass
+        insufficient_funds()
+    else:
+        # buy boost1
+        boost1_cost = 3*boost1_cost + int(boost1_cost/2)
+        clickrate = 2*clickrate
+
+def boost2():
+    global clickrate
+    global eaten
+    global boost1_cost
+
+def boost3():
+    global clickrate
+    global eaten
+    global boost1_cost
 
 def game_help():
     # displays game help message
+    global highscores
     top = 100
     inc = 25
     count = 0
@@ -94,7 +153,7 @@ def game_help():
         gameDisplay.blit(TextSurf, TextRect)
         count = 4
         
-        TextSurf, TextRect = text_objects("BOOST1: (what is does)", smallText)
+        TextSurf, TextRect = text_objects("BOOST1: double your clickrate", smallText)
         TextRect.center = ((display_width/2),(top+count*inc))
         gameDisplay.blit(TextSurf, TextRect)
         count = 5
@@ -130,11 +189,17 @@ def button(msg,x,y,w,h,ic,ac,action=None):
         # mouse within boundaries of box
         pygame.draw.rect(gameDisplay, ac, (x,y,w,h))
         print(click)
+##        if click[0] == 1 and action != None:
+##            # button clicked
+##            action()
         for event in pygame.event.get():
             
             if event.type == pygame.MOUSEBUTTONUP or mouse[0] == 1: #MOUSEBUTTONUP - When any mouse button down
                 print('up or down')
                 action()
+##            elif event.type == pygame.MOUSEBUTTONUP: #MOUSEBUTTONUP - when any mouse button pressed
+##                print('up')
+##                action()
             
     else:
         # mouse not within boundaries of box
@@ -263,7 +328,7 @@ def game_loop():
     #funtionality of the game
     cookiex = (display_width-C_WIDTH)/2
     cookiey = (display_height-C_HEIGHT)/2
-    clockrate = 1000
+    clockrate = 10
     game_exit = False
     while not game_exit:
 
@@ -282,34 +347,35 @@ def game_loop():
         gameDisplay.blit(TextSurf, TextRect)
 
         # action buttons
-        button("SAVE",200,430,100,50,blue,bright_blue,save_game)
-        button("HELP",50,430,100,50,green,bright_green,game_help)
-        button("QUIT",350,430,100,50,red,bright_red,quitgame)
+        button("SAVE",200,445,100,50,blue,bright_blue,save_game)
+        button("HELP",50,445,100,50,green,bright_green,game_help)
+        button("QUIT",350,445,100,50,red,bright_red,quitgame)
         # boost buttons
-        button("BOOST1",50,350,100,50,green,bright_green,boost_1)
-        button("BOOST2",200,350,100,50,blue,bright_blue,boost_2)
-        button("BOOST3",350,350,100,50,red,bright_red,boost_3)
+        button("BOOST1",50,365,100,50,green,bright_green,boost1)
+        button("BOOST2",200,365,100,50,blue,bright_blue,boost2)
+        button("BOOST3",350,365,100,50,red,bright_red,boost3)
         # hidden button to see if cookie is clicked
         button("",cookiex+24,cookiey+30,C_WIDTH-48,C_HEIGHT-60, white, blue, click_eat)
 
         cookie(cookiex,cookiey)
+        # hidden button to see if cookie is clicked
+        # button("",cookiex+24,cookiey+30,C_WIDTH-48,C_HEIGHT-60, white, blue, click_eat)
         TextSurf, TextRect = text_objects("Boosts:", smallText)
         TextRect.center = ((display_width/2),(340))
         gameDisplay.blit(TextSurf, TextRect)
         TextSurf, TextRect = text_objects("Actions:", smallText)
-        TextRect.center = ((display_width/2),(415))
+        TextRect.center = ((display_width/2),(430))
         gameDisplay.blit(TextSurf, TextRect)
 
-        #eaten = eaten + (secondrate/clockrate)
-        eaten += secondrate/17 # this 17 is just an eyeball -- find a better way to add the rate every second
+        eaten = eaten + (secondrate/clockrate)
         cookies_eaten(eaten)
         click_rate(clickrate)
         idle_rate(secondrate)
-        #print(eaten)
+        
         pygame.display.update()
         clock.tick(clockrate) # number inside can be num clicks allowed per second?
 
 
 name = 'asdf'#inputbox.ask(gameDisplay, 'Enter Username')
-game_intro() #comment out to go straight into game loop
+#game_intro() #comment out to go straight into game loop
 game_loop()
