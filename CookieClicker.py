@@ -88,8 +88,6 @@ def insufficient_funds():
         
         button("Continue",200,400,100,50,blue,bright_blue,game_loop)
         pygame.display.update()
-        #time.sleep(3)
-        #game_loop()
         clock.tick(60)
 
 def boost1():
@@ -193,8 +191,6 @@ def game_help():
         
         button("Play",200,400,100,50,blue,bright_blue,game_loop)
         pygame.display.update()
-        #time.sleep(3)
-        #game_loop()
         clock.tick(15)
 
 def cookie(x,y):
@@ -211,18 +207,9 @@ def button(msg,x,y,w,h,ic,ac,action=None):
     if x < mouse[0] < x+w and y < mouse[1] < y+h:
         # mouse within boundaries of box
         pygame.draw.rect(gameDisplay, ac, (x,y,w,h))
-        print(click)
         if click[0] == 1 and action != None:
             # button clicked
             action()
-##        for event in pygame.event.get():
-##            
-##            if event.type == pygame.MOUSEBUTTONUP or mouse[0] == 1: #MOUSEBUTTONUP - When any mouse button down
-##                print('up or down')
-##                action()
-##            elif event.type == pygame.MOUSEBUTTONUP: #MOUSEBUTTONUP - when any mouse button pressed
-##                print('up')
-##                action()
             
     else:
         # mouse not within boundaries of box
@@ -268,7 +255,6 @@ def load_save():
         eaten = highscores[name][0]
         clickrate = highscores[name][1]
         secondrate = highscores[name][2]
-        #print("i got the keys")
         gameDisplay.fill(white)
         TextSurf, TextRect = text_objects("GAME LOADED", largeText)
         TextRect.center = ((display_width/2),(display_height/2))
@@ -277,7 +263,6 @@ def load_save():
         time.sleep(3)
         game_loop()
     except KeyError:
-        #print("no key")
         gameDisplay.fill(white)
         TextSurf, TextRect = text_objects("NO SAVED GAME", largeText)
         TextRect.center = ((display_width/2),(display_height/2))
@@ -302,7 +287,6 @@ def save_game():
     global eaten
     global clickrate 
     global secondrate
-    #print("saving")
     highscores[name] = [0,0,0]
     highscores[name][0] = int(eaten)
     highscores[name][1] = int(clickrate)
@@ -312,7 +296,6 @@ def save_game():
  
 def quitgame():
     # save dict into textfile & kill
-    #print('quitting')
     with open('highscores.txt','w') as f:
         for i in highscores:
             f.write(str(i) + " " + str(highscores[i][0]) + " " + str(highscores[i][1]) + " " + str(highscores[i][2]) + '\n')
@@ -346,8 +329,6 @@ def game_intro():
         
 def game_loop():
     global eaten
-    
-    print('game loop')
     #funtionality of the game
     cookiex = (display_width-C_WIDTH)/2
     cookiey = (display_height-C_HEIGHT)/2
@@ -382,7 +363,6 @@ def game_loop():
 
         cookie(cookiex,cookiey)
         # hidden button to see if cookie is clicked
-        # button("",cookiex+24,cookiey+30,C_WIDTH-48,C_HEIGHT-60, white, blue, click_eat)
         TextSurf, TextRect = text_objects("Boosts:", smallText)
         TextRect.center = ((display_width/2),(340))
         gameDisplay.blit(TextSurf, TextRect)
