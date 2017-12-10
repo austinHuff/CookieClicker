@@ -16,13 +16,14 @@ try:
             highscores[str(L[0])] = [int(L[1]),int(L[2]),int(str(L[3])[0:-1])]
 except:
     highscores['null'] = [-1,-1,-1]
+    
 # constants and global vars
 display_width = 500
 display_height = 500
 C_WIDTH = 200
 C_HEIGHT = 200
 clickrate = 1
-secondrate = 0
+secondrate = 1
 eaten = 0
 boost1_cost = 10
 boost2_cost = 100
@@ -102,18 +103,40 @@ def boost1():
         insufficient_funds()
     else:
         # buy boost1
-        boost1_cost = 3*boost1_cost + int(boost1_cost/2)
-        clickrate = 2*clickrate
+        eaten -= boost1_cost
+        boost1_cost = 3*boost1_cost
+        clickrate *= 2
 
 def boost2():
-    global clickrate
+    global secondrate
     global eaten
-    global boost1_cost
+    global boost2_cost
 
+    if eaten < boost2_cost:
+        # unable to spend cookies
+        pass
+        insufficient_funds()
+    else:
+        # buy boost2
+        eaten -= boost2_cost
+        boost2_cost = 3*boost2_cost
+        secondrate = secondrate * 2
+
+        
 def boost3():
     global clickrate
     global eaten
-    global boost1_cost
+    global boost3_cost
+
+    if eaten < boost3_cost:
+        # unable to spend cookies
+        pass
+        insufficient_funds()
+    else:
+        # buy boost1
+        eaten -= boost3_cost
+        boost3_cost = 3*boost3_cost + int(boost3_cost/2)
+        clickrate *= 10
 
 def game_help():
     # displays game help message
@@ -148,7 +171,7 @@ def game_help():
         gameDisplay.blit(TextSurf, TextRect)
         count = 3
             
-        TextSurf, TextRect = text_objects("You can buy boosts (currently in development).", smallText)
+        TextSurf, TextRect = text_objects("You can buy boosts!", smallText)
         TextRect.center = ((display_width/2),(top+count*inc))
         gameDisplay.blit(TextSurf, TextRect)
         count = 4
@@ -158,12 +181,12 @@ def game_help():
         gameDisplay.blit(TextSurf, TextRect)
         count = 5
         
-        TextSurf, TextRect = text_objects("BOOST2: (what it does)", smallText)
+        TextSurf, TextRect = text_objects("BOOST2: boost your idle rate", smallText)
         TextRect.center = ((display_width/2),(top+count*inc))
         gameDisplay.blit(TextSurf, TextRect)
         count = 6
         
-        TextSurf, TextRect = text_objects("BOOST3: (what it does)", smallText)
+        TextSurf, TextRect = text_objects("BOOST3: big boost to your clickrate", smallText)
         TextRect.center = ((display_width/2),(top+count*inc))
         gameDisplay.blit(TextSurf, TextRect)
         count = 7
@@ -189,14 +212,14 @@ def button(msg,x,y,w,h,ic,ac,action=None):
         # mouse within boundaries of box
         pygame.draw.rect(gameDisplay, ac, (x,y,w,h))
         print(click)
-##        if click[0] == 1 and action != None:
-##            # button clicked
-##            action()
-        for event in pygame.event.get():
-            
-            if event.type == pygame.MOUSEBUTTONUP or mouse[0] == 1: #MOUSEBUTTONUP - When any mouse button down
-                print('up or down')
-                action()
+        if click[0] == 1 and action != None:
+            # button clicked
+            action()
+##        for event in pygame.event.get():
+##            
+##            if event.type == pygame.MOUSEBUTTONUP or mouse[0] == 1: #MOUSEBUTTONUP - When any mouse button down
+##                print('up or down')
+##                action()
 ##            elif event.type == pygame.MOUSEBUTTONUP: #MOUSEBUTTONUP - when any mouse button pressed
 ##                print('up')
 ##                action()
@@ -245,7 +268,7 @@ def load_save():
         eaten = highscores[name][0]
         clickrate = highscores[name][1]
         secondrate = highscores[name][2]
-        print("i got the keys")
+        #print("i got the keys")
         gameDisplay.fill(white)
         TextSurf, TextRect = text_objects("GAME LOADED", largeText)
         TextRect.center = ((display_width/2),(display_height/2))
@@ -254,7 +277,7 @@ def load_save():
         time.sleep(3)
         game_loop()
     except KeyError:
-        print("no key")
+        #print("no key")
         gameDisplay.fill(white)
         TextSurf, TextRect = text_objects("NO SAVED GAME", largeText)
         TextRect.center = ((display_width/2),(display_height/2))
@@ -279,7 +302,7 @@ def save_game():
     global eaten
     global clickrate 
     global secondrate
-    print("saving")
+    #print("saving")
     highscores[name] = [0,0,0]
     highscores[name][0] = int(eaten)
     highscores[name][1] = int(clickrate)
@@ -289,7 +312,7 @@ def save_game():
  
 def quitgame():
     # save dict into textfile & kill
-    print('quitting')
+    #print('quitting')
     with open('highscores.txt','w') as f:
         for i in highscores:
             f.write(str(i) + " " + str(highscores[i][0]) + " " + str(highscores[i][1]) + " " + str(highscores[i][2]) + '\n')
@@ -376,6 +399,6 @@ def game_loop():
         clock.tick(clockrate) # number inside can be num clicks allowed per second?
 
 
-name = 'asdf'#inputbox.ask(gameDisplay, 'Enter Username')
-#game_intro() #comment out to go straight into game loop
+name = inputbox.ask(gameDisplay, 'Enter Username')
+game_intro() #comment out to go straight into game loop
 game_loop()
